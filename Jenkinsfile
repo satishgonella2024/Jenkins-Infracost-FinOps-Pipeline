@@ -48,7 +48,8 @@ pipeline {
                 reportFiles: 'infracost.html',
                 reportName: 'Infracost Report',
                 alwaysLinkToLastBuild: true,
-                allowMissing: false
+                allowMissing: false,
+                keepAll: true
             ])
         }
         failure {
