@@ -1,0 +1,44 @@
+# Terraform files
+*.tfstate
+*.tfstate.backup
+*.tfvars
+crash.log
+override.tf
+override.tf.json
+.terraform/
+.terraform.lock.hcl
+
+# Jenkins files
+.jenkins/
+
+# Infracost files
+infracost.json
+infracost-diff.json
+infracost-base.json
+infracost-report.html
+
+# Log and temporary files
+*.log
+*.tmp
+*.bak
+
+# macOS specific
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows specific
+Thumbs.db
+Desktop.ini
+
+# IDE specific
+.vscode/
+.idea/
+*.iml
+
+# System-specific files
+*.swp
+*.swo
+
+# Ignore any private or secret credentials
+aws-credentials.json
