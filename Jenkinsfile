@@ -8,75 +8,69 @@ pipeline {
     stages {
         stage('Debug Environment') {
             steps {
-                echo "=================================================="
-                echo "              DEBUG ENVIRONMENT                  "
-                echo "=================================================="
-                sh '''
-                    echo "Terraform version:"
-                    terraform version
-                    echo ""
-                    echo "Infracost version:"
-                    infracost --version
-                '''
-                echo "=================================================="
+                ansiColor('xterm') {
+                    sh '''
+                        echo "\033[34m================ DEBUG INFORMATION =================\033[0m"
+                        echo "\033[32mTerraform version:\033[0m $(terraform version)"
+                        echo "\033[32mInfracost version:\033[0m $(infracost --version)"
+                        echo "\033[34m===================================================\033[0m"
+                    '''
+                }
             }
         }
         stage('Terraform Init') {
             steps {
-                echo "=================================================="
-                echo "           TERRAFORM INITIALIZATION              "
-                echo "=================================================="
-                dir('terraform') {
-                    sh '''
-                        echo "Initializing Terraform..."
-                        terraform init
-                    '''
+                ansiColor('xterm') {
+                    echo "\033[34mInitializing Terraform...\033[0m"
+                    dir('terraform') {
+                        sh '''
+                            echo "\033[33mRunning terraform init...\033[0m"
+                            terraform init
+                        '''
+                    }
+                    echo "\033[32mTerraform initialization completed.\033[0m"
                 }
-                echo "Terraform initialization completed successfully!"
-                echo "=================================================="
             }
         }
         stage('Terraform Plan') {
             steps {
-                echo "=================================================="
-                echo "                TERRAFORM PLAN                   "
-                echo "=================================================="
-                dir('terraform') {
-                    sh '''
-                        echo "Generating Terraform plan..."
-                        terraform plan -out=tfplan
-                    '''
+                ansiColor('xterm') {
+                    echo "\033[34mCreating Terraform Plan...\033[0m"
+                    dir('terraform') {
+                        sh '''
+                            echo "\033[33mRunning terraform plan...\033[0m"
+                            terraform plan -out=tfplan
+                        '''
+                    }
+                    echo "\033[32mTerraform plan completed.\033[0m"
                 }
-                echo "Terraform plan completed successfully!"
-                echo "=================================================="
             }
         }
         stage('Infracost Estimate') {
             steps {
-                echo "=================================================="
-                echo "           INFRACOST COST ESTIMATION             "
-                echo "=================================================="
-                dir('terraform') {
-                    sh '''
-                        echo "Calculating cost estimate..."
-                        infracost breakdown --path=. --format=json --out-file=infracost.json
-                        infracost output --path=infracost.json --format=table
-                        infracost output --path=infracost.json --format=html --out-file=infracost.html
-                    '''
+                ansiColor('xterm') {
+                    echo "\033[34mGenerating Infracost Estimate...\033[0m"
+                    dir('terraform') {
+                        sh '''
+                            echo "\033[33mRunning infracost breakdown...\033[0m"
+                            infracost breakdown --path=. --format=json --out-file=infracost.json
+                            echo "\033[33mGenerating table format...\033[0m"
+                            infracost output --path=infracost.json --format=table
+                            echo "\033[33mGenerating HTML format...\033[0m"
+                            infracost output --path=infracost.json --format=html --out-file=infracost.html
+                        '''
+                    }
+                    echo "\033[32mInfracost estimate generated and archived.\033[0m"
                 }
-                echo "Infracost estimate generated successfully!"
-                echo "Archiving Infracost report..."
                 archiveArtifacts artifacts: 'terraform/infracost.html', fingerprint: true
-                echo "=================================================="
             }
         }
     }
     post {
         success {
-            echo "=================================================="
-            echo "                BUILD SUCCESSFUL                 "
-            echo "=================================================="
-            echo "Publishing Infracost Report..."
+            ansiColor('xterm') {
+                echo "\033[42;30mBUILD SUCCESSFUL! Publishing Infracost Report...\033[0m"
+            }
             publishHTML([
                 reportDir: 'terraform',
                 reportFiles: 'infracost.html',
@@ -85,15 +79,11 @@ pipeline {
                 allowMissing: false,
                 keepAll: true
             ])
-            echo "Infracost Report published successfully!"
-            echo "=================================================="
         }
         failure {
-            echo "=================================================="
-            echo "                BUILD FAILED                     "
-            echo "=================================================="
-            echo "Check the logs for details."
-            echo "=================================================="
+            ansiColor('xterm') {
+                echo "\033[41;30mBUILD FAILED! Please check the logs for details.\033[0m"
+            }
         }
     }
 }
