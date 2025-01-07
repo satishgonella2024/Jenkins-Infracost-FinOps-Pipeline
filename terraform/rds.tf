@@ -1,12 +1,14 @@
 module "rds" {
   source  = "terraform-aws-modules/rds/aws"
-  version = "5.0"
+  version = "6.0"
 
-  identifier = "finops-rds-mysql"
-  engine     = "mysql"
-  engine_version = "8.0"
-  instance_class = "db.t3.micro"
-  allocated_storage = 20
+  identifier          = "finops-rds-mysql"
+  engine              = "mysql"
+  engine_version      = "8.0"
+  major_engine_version = "8.0" # Add this argument
+  instance_class      = "db.t3.micro"
+  allocated_storage   = 20
+  family              = "mysql8.0" # Add this argument
 
   username = "admin"
   password = "supersecretpassword"
