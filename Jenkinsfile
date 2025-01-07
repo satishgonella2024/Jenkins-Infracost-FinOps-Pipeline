@@ -6,68 +6,58 @@ pipeline {
         INFRACOST_API_KEY     = credentials('INFRACOST_API_KEY')
     }
     options {
-        ansiColor('xterm') // Enables colorized output
+        ansiColor('xterm')
     }
     stages {
         stage('Debug Environment') {
             steps {
-                echo "\u001B[34m🔍 ====== DEBUG ENVIRONMENT ======\u001B[0m" // Blue text
+                echo "🔍 Starting Environment Debugging..."
                 sh '''
-                    echo -e "\033[32m🌐 Terraform version:\033[0m"
-                    terraform version
-                    echo -e "\033[32m🌐 Infracost version:\033[0m"
-                    infracost --version
+                    echo -e "\033[1;34mTerraform version:\033[0m $(terraform version)"
+                    echo -e "\033[1;34mInfracost version:\033[0m $(infracost --version)"
                 '''
+                echo "✅ Environment Debugging Completed!"
             }
         }
         stage('Terraform Init') {
             steps {
-                echo "\u001B[34m🛠️ ====== TERRAFORM INITIALIZATION ======\u001B[0m" // Blue text
+                echo "🚀 Initializing Terraform..."
                 dir('terraform') {
-                    sh '''
-                        echo -e "\033[33m📦 Initializing Terraform...\033[0m"
-                        terraform init
-                    '''
+                    sh 'terraform init'
                 }
-                echo "\u001B[32m✅ Terraform initialization completed!\u001B[0m" // Green text
+                echo "✅ Terraform Initialized Successfully!"
             }
         }
         stage('Terraform Plan') {
             steps {
-                echo "\u001B[34m📜 ====== TERRAFORM PLAN ======\u001B[0m" // Blue text
+                echo "📜 Generating Terraform Plan..."
                 dir('terraform') {
-                    sh '''
-                        echo -e "\033[33m🔄 Generating Terraform plan...\033[0m"
-                        terraform plan -out=tfplan
-                    '''
+                    sh 'terraform plan -out=tfplan'
                 }
-                echo "\u001B[32m✅ Terraform plan completed!\u001B[0m" // Green text
+                echo "✅ Terraform Plan Generated Successfully!"
             }
         }
         stage('Infracost Estimate') {
             steps {
-                echo "\u001B[34m💰 ====== INFRACOST ESTIMATE ======\u001B[0m" // Blue text
+                echo "💰 Generating Infracost Estimate..."
                 dir('terraform') {
                     sh '''
-                        echo -e "\033[33m🔄 Running infracost breakdown...\033[0m"
+                        echo "📝 Running infracost breakdown..."
                         infracost breakdown --path=. --format=json --out-file=infracost.json
-                        
-                        echo -e "\033[32m📊 Generating table format...\033[0m"
+                        echo "📊 Generating table format..."
                         infracost output --path=infracost.json --format=table
-                        
-                        echo -e "\033[32m🌐 Generating HTML format...\033[0m"
+                        echo "🌐 Generating HTML format..."
                         infracost output --path=infracost.json --format=html --out-file=infracost.html
                     '''
                 }
                 archiveArtifacts artifacts: 'terraform/infracost.html', fingerprint: true
-                echo "\u001B[32m✅ Infracost estimate generated and archived.\u001B[0m" // Green text
+                echo "✅ Infracost Estimate Generated and Archived!"
             }
         }
     }
     post {
         success {
-            echo "\u001B[32m🎉 BUILD SUCCESSFUL!\u001B[0m" // Green text
-            echo "\u001B[34m📂 Publishing Infracost Report...\u001B[0m" // Blue text
+            echo "🎉 BUILD SUCCESSFUL! Publishing Infracost Report..."
             publishHTML([
                 reportDir: 'terraform',
                 reportFiles: 'infracost.html',
@@ -76,10 +66,10 @@ pipeline {
                 allowMissing: false,
                 keepAll: true
             ])
-            echo "\u001B[32m✅ Infracost Report published successfully!\u001B[0m" // Green text
+            echo "📄 Infracost Report Published Successfully!"
         }
         failure {
-            echo "\u001B[31m❌ BUILD FAILED. Check the logs for details.\u001B[0m" // Red text
+            echo "❌ BUILD FAILED! Please check the logs for details."
         }
     }
 }
